@@ -1,0 +1,47 @@
+{% extends "base_login.html" %}
+
+{% block head %} 
+
+{% endblock %}
+
+{% block title %}Inicio de Sesión{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <h2 class="text-center mt-5">Inicia Sesión</h2>
+                <form method="POST" action="{{ url_for('users.login') }}">
+                    <div class="form-group">
+                        <label for="username">Usuario</label>
+                        <input type="text" class="form-control" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block mt-3">Entrar</button>
+                </form>
+                <div class="text-center mt-3">
+                    <p>O haz clic <a href="{{ url_for('users.user_register') }}" class="btn btn-link p-0 m-0 align-baseline" id="user_registerBtn">aquí</a> para registrarte</p>
+                </div>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" id="flash-message" >{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+        </div>
+    </div>
+    <script>
+        // Espera 3 segundos y luego oculta el mensaje flash
+        setTimeout(() => {
+            const flashMessage = document.getElementById('flash-message');
+            if (flashMessage) {
+                flashMessage.style.display = 'none';
+            }
+        }, 3000);
+    </script>
+{% endblock %}

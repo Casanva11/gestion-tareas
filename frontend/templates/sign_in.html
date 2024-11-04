@@ -1,0 +1,104 @@
+{% extends "base_login.html" %}
+{% block head %}
+{% endblock %}
+
+{% block title %}Registro Usuario{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <h2 class="text-center mt-5">Introduce tus datos</h2><br>
+                <form method="POST" action="{{ url_for('users.user_register') }}">
+                    <div class="form-group">
+                        <label for="name">Nombre</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Apellidos</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nickname">Usuario</label>
+                        <input type="text" class="form-control" id="nickname" name="nickname" required>
+                        <!-- Mensaje flash para el nickname -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    {% if message[0] == 'nickname' %}
+                                        <div class="alert alert-{{ category }} mt-1 flash-message">{{ message[1] }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <!-- Mensaje flash para el email -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    {% if message[0] == 'email' %}
+                                        <div class="alert alert-{{ category }} mt-1 flash-message">{{ message[1] }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_email">Repite tu Email</label>
+                        <input type="email" class="form-control" id="confirm_email" name="confirm_email" required>
+                        <!-- Mensaje flash para el confirm_email -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    {% if message[0] == 'confirm_email' %}
+                                        <div class="alert alert-{{ category }} mt-1 flash-message">{{ message[1] }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <!-- Agregar patrón para validar la contraseña -->
+                        <input type="password" class="form-control" id="password" name="password" pattern="^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$" title="La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número" required>
+                        <!-- Requisitos de la contraseña -->
+                        <small class="form-text text-muted">
+                            La contraseña debe tener al menos 8 caracteres, contener una letra mayúscula y un número.
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Teléfono</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9]{9,15}" title="El número debe contener entre 9 y 15 dígitos" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block mt-3">Regístrate</button>
+                </form>
+            </div>
+        </div>
+    </div><br><br>
+
+    <script>
+        // Ocultar todos los mensajes flash después de 3 segundos
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach((flashMessage) => {
+                flashMessage.style.display = 'none';
+            });
+        }, 3000);
+
+        // Validar que los emails coincidan antes de enviar el formulario
+        document.querySelector('form').addEventListener('submit', function(event) {
+            const email = document.getElementById('email').value;
+            const confirmEmail = document.getElementById('confirm_email').value;
+
+            if (email !== confirmEmail) {
+                event.preventDefault();
+                alert('Los correos electrónicos no coinciden.');
+            }
+        });
+    </script>
+{% endblock %}
+

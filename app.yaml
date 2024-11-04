@@ -1,0 +1,6 @@
+runtime: python312  # Esto asegura que Google App Engine use Python 3.12
+entrypoint: gunicorn -b :$PORT main:app  # Suponiendo que tu archivo principal es main.py y tu app es 'app'
+
+handlers:
+- url: /.*
+  script: auto

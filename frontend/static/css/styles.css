@@ -1,0 +1,215 @@
+/* Color por defecto: blanco apagado */
+.navbar .navbar-nav .nav-link {
+    color: #dcdcdc !important; /* Un gris claro */
+}
+
+/* Efecto hover: blanco brillante al pasar el ratón */
+.navbar .navbar-nav .nav-link:hover {
+    color: #ffffff !important; /* Blanco brillante */
+}
+
+/* Asegura que el enlace activo también tenga el color adecuado */
+.navbar .navbar-nav .nav-link.active {
+    color: #ffffff !important; /* Blanco brillante */
+}
+
+/* Asegura que el formulario de búsqueda se empuje hacia la derecha */
+.navbar .d-flex {
+    margin-left: auto;
+}
+
+/* Modifica el tamaño del icono de Usuario en la barra de navegación */
+.icono-grande {
+    font-size: 1.5rem;
+}
+
+/* Estilo para el enlace del icono de usuario */
+.navbar .nav-item.dropdown .nav-link {
+    background-color: #78C2AD !important; 
+    color: #ffffff !important; 
+    border-radius: 50%; /* Para hacer el fondo redondo */
+    padding: 0.5rem; /* Espaciado interno */
+}
+
+/* Efecto hover para el icono de usuario */
+.navbar .nav-item.dropdown .nav-link:hover {
+    background-color: #78C2AD !important; /* Un tono más oscuro o diferente para el hover */
+}
+
+/* Modifica el tamaño de los botones Tareas y Calendario de la barra de navegación */
+.nav-link-grande {
+    font-size: 1.25rem; /* Ajusta el tamaño de fuente según lo que prefieras */
+}
+
+/* Estilo del botón "Hoy" en el calendario */
+.fc-button {
+    background-color: #78C2AD !important;
+    border: none !important; /* Sin borde */
+}
+
+/* Efecto hover para el botón "Hoy" */
+.fc-button:hover {
+    background-color: #5f9c8b !important; /* Un tono más oscuro para el hover */
+}
+
+/* Estilo de tareas en calendario */
+.fc-event {
+    background-color: #F3969A !important; /* Cambia por el código de color rosado */
+    border-color: #F3969A !important; /* Asegúrate de que el borde tenga el mismo color */
+    color: #ffffff; /* Color del texto (opcional) */
+}
+
+/* Limitar el ancho de la barra de navegación */
+.navbar {
+    max-width: 1140px;  /* Ajusta este valor si necesitas un ancho diferente */
+    margin: 0 auto;     /* Centra la barra de navegación */
+}
+
+/* Evitar que el menú desplegable ocupe todo el ancho */
+.dropdown-menu {
+    width: 200px; /* Ajusta este valor según lo que prefieras */
+}
+
+@media (max-width: 992px) { /* Cambia 992px según el tamaño que desees */
+    #searchForm {
+        display: none !important; /* Ocultar el formulario de búsqueda */
+    }
+}
+
+/* Agregar margen al formulario de búsqueda */
+#searchForm {
+    margin-right: 15px; /* Ajusta el valor según el espacio que desees */
+    position: relative; /* Asegura que el formulario se posicione correctamente */
+}
+
+/* Aumentar el tamaño de los checkboxes */
+.large-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    vertical-align: middle; /* Alineación vertical para el checkbox */
+}
+
+/* Estilo para mostrar las opciones de los checkboxes en horizontal */
+.form-check {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    font-size: 1.2rem; /* Ajustar el tamaño de fuente */
+    padding: 5px 0; /* Ajustar el padding superior e inferior de manera uniforme */
+}
+
+/* Ajustar la posición del label al lado del checkbox */
+.form-check-label {
+    margin-left: 8px;
+    margin-bottom: 0; /* Asegurar que no haya margen adicional que cause desajuste */
+}
+
+/* Flexibilidad para más opciones en una fila */
+.form-check {
+    margin-top: 10px; /* Espacio entre filas si hay más opciones */
+    display: flex;
+    align-items: center; /* Alinea verticalmente los checkboxes y las etiquetas */
+}
+
+.form-check-input {
+    margin-top: 0; /* Ajusta el margen superior para alinear los checkboxes */
+    vertical-align: middle; /* Alineación vertical para el checkbox */
+}
+
+/* Cambiar el color del botón "Añadir Tarea" que tiene la clase btn-success */
+.btn-success {
+    background-color: #78C2AD !important;
+    border-color: #78C2AD !important;
+    color: #ffffff !important; /* Texto en blanco */
+}
+
+.btn-success:hover {
+    background-color: #5f9c8b !important; /* Un tono más oscuro para el hover */
+    border-color: #5f9c8b !important;
+}
+
+.suggestions-box {
+    display: none; /* Ocultar por defecto */
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: white;
+    z-index: 1000;
+    position: absolute;
+    top: 100%; /* Manténlo para posicionar justo debajo del input */
+    left: 0;
+    right: 0;
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 0; /* Asegúrate de que no haya margen extra */
+    padding: 0; /* Ajusta padding si es necesario */
+    
+}
+
+/* Elemento individual de sugerencia */
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+/* Estilo para el hover en cada elemento de sugerencia */
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+
+#searchInput {
+    border-radius: 8px 0 0 8px !important;    
+}
+#searchBtn {
+    border-radius: 0 8px 8px 0 !important; 
+}
+
+.highlight {
+    font-weight: bold; /* Negrita para el texto ingresado */
+}
+
+.normal {
+    color: #888; /* Color gris claro para el resto del texto */
+}
+
+.note {
+    color: #888; /* Color gris claro para las notas */
+    font-size: 0.9em; /* Un tamaño de fuente más pequeño para las notas */
+}
+
+/* Modal cambio de contraseña*/
+.custom-modal {
+    max-width: 80%; 
+}
+
+/* Ajustar la separación entre el campo de texto y el botón */
+.d-flex {
+    display: flex;
+    align-items: center;
+}
+
+/* Margen derecho al campo para separar el botón */
+.me-2 {
+    margin-right: 10px;
+}
+
+/* Ajuste del botón para que el icono de ojo se vea centrado */
+.password-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; /* Ancho del botón */
+    height: 40px; /* Altura del botón para igualar al campo de texto */
+    padding: 0; /* Eliminar padding adicional */
+}
+
+/* Tamaño del icono de ojo */
+.password-toggle i {
+    font-size: 18px; 
+}
+
+/* Añade esto a tu CSS */
+.d-flex.gap-2 {
+    gap: 5px; /* Ajusta el valor según la cantidad de espacio que desees entre los botones */
+}

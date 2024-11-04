@@ -1,0 +1,382 @@
+{% extends "base.html" %}
+{% set active_page = 'tasks' %}
+
+{% block title %}Lista de Tareas{% endblock %}
+
+{% block head %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous">
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <!-- Botones para añadir, editar y eliminar tarea -->
+    <div class="my-4">
+        <!-- En pantallas grandes -->
+        <div class="d-none d-md-flex justify-content-between align-items-center">
+            <!-- Botón añadir tarea a la izquierda -->
+            <div>
+                <button type="button" class="btn btn-success" onclick="openAddTaskModal()">Añadir Tarea</button>
+            </div>
+
+            <!-- Botones filtrar, editar y eliminar tarea a la derecha -->
+            <div class="d-flex gap-2 align-items-center">
+                <button type="button" class="btn btn-secondary" id="openFilterBtn" onclick="openFilterModal()">Filtrar</button>
+                <button type="button" class="btn btn-primary" id="editTaskBtn" onclick="editSelectedTask()" disabled>Editar Tarea</button>
+                <button type="button" class="btn btn-danger" id="deleteTaskBtn" onclick="openDeleteTaskModal()" disabled>Eliminar Tarea</button>
+            </div>
+        </div>
+
+        <!-- En pantallas pequeñas -->
+        <div class="d-flex flex-column d-md-none">
+            <!-- Botón añadir tarea en móvil (ocupa toda la línea) -->
+            <button type="button" class="btn btn-success w-100 mb-2" onclick="openAddTaskModal()">Añadir Tarea</button>
+
+            <!-- Botones filtrar, editar y eliminar tarea en una sola línea en móvil -->
+            <div class="d-flex gap-2 justify-content-between">
+                <button type="button" class="btn btn-secondary flex-fill" id="openFilterBtnSmall" onclick="openFilterModal()">Filtrar</button>
+                <button type="button" class="btn btn-primary flex-fill" id="editTaskBtnSmall" onclick="editSelectedTask()" disabled>Editar Tarea</button>
+                <button type="button" class="btn btn-danger flex-fill" id="deleteTaskBtnSmall" onclick="openDeleteTaskModal()" disabled>Eliminar Tarea</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="categoriesContainer">
+        <!-- Espacio entre los botones y el primer título -->
+        <div style="margin: 30px 0;"></div>
+        
+        <!-- Listado de categorías y tareas -->
+        {% for category in categories %}
+        <div class="d-flex justify-content-between align-items-center mt-5 mb-4">
+            <!-- Título de la categoría -->
+            <h2 title="Doble click para editar" class="mb-0" style="font-size: 1.5rem;" 
+                {% if category.name_category != 'Sin categoría' %}
+                    ondblclick="editCategoryName(this, '{{ category.id_category }}')"
+                {% endif %}>
+                {{ category.name_category }}
+            </h2>
+            {% if category.name_category != 'Sin categoría' %}
+            <!-- Icono de papelera -->
+                <i class="fas fa-trash-alt text-danger" style="cursor: pointer;" onclick="deleteCategory('{{ category.id_category }}')"></i>
+            {% endif %}
+        </div>
+
+        <!-- Asegura que siempre haya una tabla con el id de la categoría, independientemente de si tiene tareas o no -->
+        <div class="table-responsive">
+            <table class="table table-bordered" style="table-layout: fixed;" id="category-{{ category.id_category }}">
+                <tbody>
+                    {% if category.tasks %}
+                        <!-- Iterar sobre las tareas -->
+                        {% for task in category.tasks %}
+                            <tr onclick="selectTask(this, '{{ task.id_task }}', '{{ task.title }}', '{{ task.notes }}', '{{ task.start_date }}', '{{ task.end_date }}', '{{ category.name_category}}', '{{ task.id_priority }}', '{{ task.id_status}}')"
+                                ondblclick="openTaskDetailsModal('{{ task.id_task }}', '{{ task.title }}', '{{ task.notes }}', '{{ task.priority.name_priority }}', '{{ task.status.name_status }}', '{{ task.start_date }}', '{{ task.end_date }}')">          
+                                <!-- Título de la tarea, siempre visible -->
+                                <td title="Título de la tarea" style="width: 50%;">{{ task.title }}</td>
+                                <!-- Fecha de inicio de tarea, oculta en móviles -->
+                                <td class="d-none d-sm-table-cell" title="Fecha Inicio Tarea" style="width: 20%;">{{task.start_date.strftime('%d %b %Y, %H:%M') if task.start_date else 'Fecha no establecida'}}</td>
+                                <!-- Fecha de entrega de tarea, oculta en móviles -->
+                                <td class="d-none d-sm-table-cell" title="Fecha Entrega Tarea" style="width: 20%;">{{ task.end_date.strftime('%d %b %Y, %H:%M') if task.end_date else 'Fecha no establecida' }}</td>
+                                <!-- Prioridad, oculta en móviles -->
+                                <td class="d-none d-sm-table-cell" title="Prioridad" style="width: 15%;" onclick="editTaskPriority(this, '{{ task.id_task }}', '{{ task.id_priority }}')">
+                                    {{ task.priority.name_priority }}
+                                </td>
+                                <!-- Estado, oculta en móviles -->
+                                <td class="d-none d-sm-table-cell" title="Estado" style="width: 15%;">{{ task.status.name_status }}</td>                                               
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Mostrar mensaje de "No hay tareas" si no hay tareas en la categoría -->
+                        <tr>
+                            <td colspan="5" style="text-align: center;">No hay tareas disponibles.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+        <p>No hay categorías con tareas para este usuario.</p>
+        <!-- Espacio entre la tabla y el siguiente título -->
+        <div style="margin: 30px 0;"></div>
+        {% endfor %}
+
+    </div>
+</div>
+
+    <!-- Modal de Bootstrap para añadir tarea -->
+    <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTaskLabel">Añadir Tarea</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addTaskForm" method="POST">
+                        <div class="mb-3">
+                            <label for="newTaskTitle" class="form-label">Título</label>
+                            <input type="text" class="form-control" id="newTaskTitle" name="newTaskTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newTaskNotes" class="form-label">Notas</label>
+                            <textarea class="form-control" id="newTaskNotes" name="newTaskNotes" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newTaskCategory" class="form-label">Categoría</label>
+                            <input list="categoriesList" class="form-control" id="newTaskCategory" name="newTaskCategory" placeholder="Selecciona o escribe una categoría" required value="Sin categoría">
+                            <datalist id="categoriesList">
+                                <option value="Sin categoría">Sin categoría</option> <!-- Opción predeterminada -->
+                                {% for category in categories %}
+                                    <option value="{{ category.name_category }}">{{ category.name_category }}</option>
+                                {% endfor %}
+                            </datalist>
+                        </div>                   
+                        <div class="mb-3">
+                            <label for="taskPriority" class="form-label">Prioridad</label>
+                            <select class="form-select" id="taskPriority" name="taskPriority" required>
+                                {% for priority in priorities %}
+                                <option value="{{ priority.id_priority }}" {% if loop.first %}selected{% endif %}>{{ priority.name_priority }}</option>
+                                {% endfor %}
+                            </select>
+                        </div> 
+                        <div class="mb-3">
+                            <label for="taskStatus" class="form-label">Estado</label>
+                            <select class="form-select" id="taskStatus" name="taskStatus" required>
+                                {% for status in statuses %}
+                                <option value="{{ status.id_status }}" {% if loop.first %}selected{% endif %}>{{ status.name_status }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newTaskStartDate" class="form-label">Fecha de creación</label>
+                            <input type="datetime-local" class="form-control" id="newTaskStartDate" name="newTaskStartDate">
+                            <small class="form-text text-muted">Si no se especifica ninguna fecha, se utilizará la fecha y hora actuales como fecha de creación.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newTaskEndDate" class="form-label">Fecha de finalización (Opcional)</label>
+                            <input type="datetime-local" class="form-control" id="newTaskEndDate" name="newTaskEndDate">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Añadir Tarea</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     
+    <!-- Modal de confirmación para eliminar tarea -->
+    <div class="modal fade" id="deleteTaskModal" tabindex="-1" aria-labelledby="deleteTaskLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteTaskLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro que desea eliminar esta tarea?</p>
+                </div>
+                <div class="modal-footer">
+                    <!-- Botones de confirmación -->
+                    <button type="button" class="btn btn-danger" onclick="deleteTask()">Aceptar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal de Bootstrap para editar tarea -->
+    <div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="editTaskLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTaskLabel">Editar Tarea</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Formulario para editar la tarea -->
+                    <form id="editTaskForm" method="POST">
+                        <!-- Campo para editar el título -->
+                        <div class="mb-3">
+                            <label for="taskTitle" class="form-label">Título</label>
+                            <input type="text" class="form-control" id="editTaskTitle" name="taskTitle" required>
+                        </div>
+                        
+                        <!-- Campo para editar las notas -->
+                        <div class="mb-3">
+                            <label for="taskNotes" class="form-label">Notas</label>
+                            <textarea class="form-control" id="editTaskNotes" name="taskNotes" rows="3"></textarea>
+                        </div>
+                        
+                        <!-- Campo para seleccionar la categoría -->
+                        <div class="mb-3">
+                            <label for="editTaskCategory" class="form-label">Categoría</label>
+                            <input list="editCategoriesList" class="form-control" id="editTaskCategory" name="taskCategory" placeholder="Selecciona o escribe una categoría" required>
+                            <datalist id="editCategoriesList">
+                                {% for category in categories %}
+                                    <option value="{{ category.name_category }}">{{ category.name_category }}</option>
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        
+                        <!-- Campo para seleccionar la prioridad -->
+                        <div class="mb-3">
+                            <label for="editTaskPriority" class="form-label">Prioridad</label>
+                            <select class="form-select" id="editTaskPriority" name="taskPriority" required>
+                                {% for priority in priorities %}
+                                    <option value="{{ priority.id_priority }}">{{ priority.name_priority }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Campo para seleccionar el estado -->
+                        <div class="mb-3">
+                            <label for="editTaskStatus" class="form-label">Estado</label>
+                            <select class="form-select" id="editTaskStatus" name="taskStatus" required>
+                                {% for status in statuses %}
+                                    <option value="{{ status.id_status }}">{{ status.name_status }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Campo para seleccionar la fecha de creación -->
+                        <div class="mb-3">
+                            <label for="editTaskStartDate" class="form-label">Fecha de creación</label>
+                            <input type="datetime-local" class="form-control" id="editTaskStartDate" name="taskStartDate" required>
+                        </div>
+                        
+                        <!-- Campo para seleccionar la fecha de finalización -->
+                        <div class="mb-3">
+                            <label for="editTaskEndDate" class="form-label">Fecha de finalización (Opcional)</label>
+                            <input type="datetime-local" class="form-control" id="editTaskEndDate" name="taskEndDate">
+                        </div>
+
+                        <!-- Campo oculto para el ID de la tarea -->
+                        <input type="hidden" id="editTaskId" name="taskId">
+
+                        <!-- Botones -->
+                        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de la tarea -->
+    <div class="modal fade" id="taskDetailsModal" tabindex="-1" aria-labelledby="taskDetailsLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="taskDetailsLabel">Detalles de la Tarea</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Título:</strong> <span id="taskDetailTitle"></span></p>
+                    <p><strong>Notas:</strong> <span id="taskDetailNotes"></span></p>
+                    <p><strong>Prioridad:</strong> <span id="taskDetailPriority"></span></p>
+                    <p><strong>Estado:</strong> <span id="taskDetailStatus"></span></p>
+                    <p><strong>Fecha de creación:</strong> <span id="taskDetailStartDate"></span></p>
+                    <p><strong>Fecha de entrega:</strong> <span id="taskDetailEndDate"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación de eliminación -->
+    <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteCategoryModalLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar esta categoría? Esto eliminará todas las tareas asociadas.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteCategory">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Modal de filtro de tareas-->
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filterModalLabel">Filtrar Tareas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Prioridades -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Prioridades</label>
+                        <div class="d-flex flex-wrap">
+                            {% for priority in priorities %}
+                                <div class="form-check me-3" style="font-size: 1.2rem;">
+                                    <input class="form-check-input large-checkbox" type="checkbox" value="{{ priority.id_priority }}" id="priority-{{ priority.id_priority }}">
+                                    <label class="form-check-label" for="priority-{{ priority.id_priority }}">
+                                        {{ priority.name_priority }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+    
+                    <!-- Estados -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Estados</label>
+                        <div class="d-flex flex-wrap">
+                            {% for status in statuses %}
+                                <div class="form-check me-3" style="font-size: 1.2rem;">
+                                    <input class="form-check-input large-checkbox" type="checkbox" value="{{ status.id_status }}" id="status-{{ status.id_status }}">
+                                    <label class="form-check-label" for="status-{{ status.id_status }}">
+                                        {{ status.name_status }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+    
+                    <!-- Fecha de finalización -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Fecha de Finalización</label>
+                        <div class="d-flex justify-content-between">
+                            <input type="date" id="startDate" class="form-control me-2">
+                            <input type="date" id="endDate" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger me-auto" id="resetFiltersButton" onclick="resetFilters()">Borrar Filtro</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="filterTasks()">Aplicar Filtro</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" id="flash-message" >{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<script src="{{ url_for('static', filename='js/openModals.js') }}"> </script>
+<script src="{{ url_for('static', filename='js/taskActions.js') }}"> </script>
+<script src="{{ url_for('static', filename='js/utils.js') }}"> </script>
+<script src="{{ url_for('static', filename='js/taskEvents.js') }}"> </script>
+{% endblock %}

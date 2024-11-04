@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Tareas{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Contenido de la página Perfil -->
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mt-5 mb-4">
+        <h2 style="font-size: 1.5rem;">Tus datos de Usuario</h2>
+    </div>
+    <form>
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre</label>
+            <input type="text" class="form-control w-50" id="nombre" value="{{ user.name }}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="apellidos" class="form-label">Apellidos</label>
+            <input type="text" class="form-control w-50" id="apellidos" value="{{ user.last_name }}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control w-50" id="email" value="{{ user.email }}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="telefono" class="form-label">Teléfono</label>
+            <input type="tel" class="form-control w-50" id="telefono" value="{{ user.phone }}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="username" class="form-label">Nombre de Usuario</label>
+            <input type="text" class="form-control w-50" id="username" value="{{ user.nickname }}" readonly>
+        </div>
+
+        <div class="d-flex mt-4">
+            <button type="button" class="btn btn-primary mx-2" data-bs-toggle="modal" data-bs-target="#editarDatosModal">Modificar Usuario</button>
+            <button type="button" class="btn btn-danger mx-2" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Cambiar Contraseña</button>
+        </div>
+    </form>
+</div>
+
+
+<!-- Modal para editar datos -->
+<div class="modal fade" id="editarDatosModal" tabindex="-1" aria-labelledby="editarDatosModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editarDatosModalLabel">Editar Datos de Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-editar-user" method="POST">
+                    <div class="mb-3">
+                        <label for="nombre-editar" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre-editar" value="{{ user.name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="apellidos-editar" class="form-label">Apellidos</label>
+                        <input type="text" class="form-control" id="apellidos-editar" value="{{ user.last_name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email-editar" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email-editar" readonly value="{{ user.email }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefono-editar" class="form-label">Teléfono</label>
+                        <input type="tel" class="form-control" id="telefono-editar" value="{{ user.phone }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="username-editar" class="form-label">Nombre de Usuario</label>
+                        <input type="text" class="form-control" id="username-editar" readonly  value="{{ user.nickname }}">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" data-bs-target="#editarDatosModal" onclick="editUser()">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para cambiar contraseña -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 500px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordLabel">Cambiar Contraseña</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm">
+                    <!-- Contraseña actual -->
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Contraseña actual:</label>
+                        <div class="d-flex">
+                            <input type="password" class="form-control me-2" id="currentPassword" name="currentPassword" required>
+                            <button type="button" class="btn btn-outline-secondary password-toggle" id="toggleCurrentPassword">
+                                <i class="bi bi-eye"></i> <!-- Icono de ojo -->
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Nueva contraseña -->
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Nueva contraseña:</label>
+                        <div class="d-flex">
+                            <input type="password" class="form-control me-2" id="newPassword" name="newPassword" required>
+                            <button type="button" class="btn btn-outline-secondary password-toggle" id="toggleNewPassword">
+                                <i class="bi bi-eye"></i> <!-- Icono de ojo -->
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Confirmar nueva contraseña -->
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirmar nueva contraseña:</label>
+                        <div class="d-flex">
+                            <input type="password" class="form-control me-2" id="confirmPassword" name="confirmPassword" required>
+                            <button type="button" class="btn btn-outline-secondary password-toggle" id="toggleConfirmPassword">
+                                <i class="bi bi-eye"></i> <!-- Icono de ojo -->
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <div id="responseMessage" class="alert d-none"></div> <!-- Para mensajes de éxito o error -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" id="submitPasswordForm">Actualizar Contraseña</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/openModals.js') }}"></script>
+<script src="{{ url_for('static', filename='js/changePassword.js') }}"></script>
+<script src="{{ url_for('static', filename='js/users.js') }}"></script>
+
+{% endblock %}
